@@ -10,12 +10,13 @@ const minimalProduct = mongoose.Schema
 const orderSchema = mongoose.Schema
 (
     {
+        userName : String,
         userId : String,
         orderDate : { type: Date, default: Date.now() },
         DueDate : { type : Date},
         orderAddress : String,
         product : [minimalProduct],
-        onWayProduct : [{type : Boolean, default : false  }]
+        onWayProduct : {type : Boolean, default : false  }
     }
 )
 export const orderSchemaModel = mongoose.model("order", orderSchema)

@@ -7,7 +7,10 @@ const productSchema = mongoose.Schema
         descriptionProduct : String,
         manufacturingDateProduct : Date,
         pictureRoutingProduct : String,
-        domainProduct : String
+        domainProduct : String, 
+        src: String,
+        price: String,
+        type : String
     }
 )
 export const productModel = mongoose.model("product", productSchema)

@@ -21,7 +21,6 @@ export const getAllOrdersByUser = async (req, res, next) => {
     try {
         let allOrders = await orderSchemaModel.find({ordererId})
         return res.json(allOrders)
-
     }
     catch (err) {
          res.status(400).json({ type: "invalid operation", message: "sorry cannot get orders" })
@@ -51,7 +50,7 @@ export const deleteOrder = async (req, res) => {
 }
 
 export const addOrder = async (req, res) => {
-    let { orderDate, DueDate, orderAddress, product, orderId, onWayProduct } = req.body;
+    let { orderDate, DueDate, orderAddress, product, orderId, onWayProduct, userName } = req.body;
 
     if (!orderAddress)
         return res.status(404).json({ type: "missing params", message: "missing details: address or product" })
@@ -61,7 +60,7 @@ export const addOrder = async (req, res) => {
     try {
         // if (req.orederId != req.user._id)
         //     req.status(403).json({ type: "you are not alowd", massage: "you are not alowd to add a order" })
-        let newOrder = new orderSchemaModel({ orderDate, DueDate, orderAddress, product, orderId, onWayProduct });
+        let newOrder = new orderSchemaModel({ orderDate, DueDate, orderAddress, product, orderId, onWayProduct, userName });
         await newOrder.save();
         return res.json(newOrder)
 

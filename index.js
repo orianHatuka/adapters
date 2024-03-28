@@ -16,7 +16,7 @@ app.use("/api/product", productRouter);
 app.use("/api/user", userRouter);
 app.use("/api/order", orderRouter);
 app.use(errorHandling)
-
+app.use(express.static("image"));
 let port = process.env.PORT || 3500;
 app.listen(port, () => {
     console.log(`app is listening on port ${port}`)

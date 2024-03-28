@@ -10,10 +10,10 @@ export const addUser = async (req, res) => {
         if (sameUser)
             return res.status(409).json({ type: "same user", message: "Used already exists in the system" })
         let hashedPassword = await bcrypt.hash(password, 15);
-        let newUser = new userModel({ email, password: hashedPassword, userName, role : "user" });
+        let newUser = new userModel({ email, password: hashedPassword, userName, role: "user" });
         await newUser.save();
         let token = generateToken(newUser._id, newUser.role, newUser.userName)
-        res.json({_id : newUser.id , userName : newUser.userName, token, email : newUser.email})
+        res.json({ _id: newUser.id, userName: newUser.userName, token, email: newUser.email, role: newUser.role })
     }
     catch (err) {
         res.status(400).json({ type: "invalid operation", message: "Cannot add this user" })
@@ -34,7 +34,7 @@ export const login = async (req, res) => {
             return res.status(404).json({ type: "User not found", message: "User password is invalid" })
         user.password = "****";
         let token = generateToken(user._id, user.role, user.userName);
-        return res.json({_id: user.id, userName: user.userName, token, email : user.email})
+        return res.json({ _id: user.id, userName: user.userName, role: user.role, token, email: user.email })
     }
     catch (err) {
         res.status(400).json({ type: "invalid operation", message: "Unable to enter user" })

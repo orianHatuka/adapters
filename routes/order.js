@@ -4,7 +4,7 @@ import { auth, authAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/all",authAdmin, getAllOrders);
+router.get("/",authAdmin, getAllOrders);
 router.get("/",auth ,getAllOrdersByUser);
 router.delete("/:id",auth, deleteOrder);
 router.post("/",auth, addOrder);
