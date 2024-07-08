@@ -4,11 +4,10 @@ import Joi from "joi";
 const userSchema = mongoose.Schema
 (
     {
-        userName : String,
-        password : String,
+    
+        userName: String,
         email : {type : String, unique : true},
         role : {type : String, default : "user"},
-        joinDate : Date
     }
 )
 
@@ -21,7 +20,6 @@ export const userValidator = (_user) =>
         password: Joi.string(),
         email : Joi.string(),
         role : Joi.string(),
-        joinDate : Joi.string().Date()
     })
     return userValidationSchema.validate(_user);
 }
