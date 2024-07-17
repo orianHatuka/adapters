@@ -1,55 +1,85 @@
-import {  alertModel } from "../models/alert.js";
-// import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
+import { alertModel } from "../models/alert.js"; // מייבא את המודל
+
+// הוספת התראה
 export const addAlert = async (req, res) => {
-    let { alertName, type } = req.body;
+    // פיצול הנתונים מהבקשה
+    const { AlertType, StockName, MinRange, MaxRange, UserEmail } = req.body;
+
     try {
-        let newAlert = new alertModel({  alertName, type});
+        // יצירת אובייקט חדש של התראה עם הנתונים שנשלחו
+        const newAlert = new alertModel({
+            AlertType,
+            StockName,
+            MinRange,
+            MaxRange,
+            UserEmail
+        });
+
+        // שמירה במסד הנתונים
         await newAlert.save();
-        // let token = generateToken(newUser._id, newUser.role, newUser.userName)
-        // res.json({ _id: newUser.id, userName: newUser.userName, token, email: newUser.email, role: newUser.role })
+
+        // החזרת התגובה עם ההתראה שנוספה
+        res.status(201).json(newAlert);
+    } catch (err) {
+        // טיפול בשגיאות ושילוח תשובה למשתמש
+        res.status(400).json({ type: "invalid operation", message: "Cannot add this alert" });
     }
-    catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Cannot add this alert" })
-    }
-}
+};
+
+// מחיקת התראה
 export const deleteAlert = async (req, res) => {
-    let { id } = req.params;
+    const { id } = req.params;
+
     try {
-        if (!mongoose.isValidObjectId(id))
-            return res.status(400).json({ type: "not valid id", message: "id not in right format" })
+        // בדיקה אם ה-ID תקין
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({ type: "not valid id", message: "id not in right format" });
+        }
 
-        let alert = await alertModel.findByIdAndDelete(id);
-        if (!alert)
-            return res.status(404).json({ type: "no alert to delete", message: "no alert with such id to delete" })
+        // חיפוש ומחיקת ההתראה על פי ה-ID
+        const alert = await alertModel.findByIdAndDelete(id);
 
-        return res.json(alert)
+        // בדיקה אם ההתראה נמצאה ומחוקה בהצלחה
+        if (!alert) {
+            return res.status(404).json({ type: "no alert to delete", message: "no alert with such id to delete" });
+        }
+
+        // החזרת התגובה עם ההתראה שנמחקה
+        return res.json(alert);
+    } catch (err) {
+        // טיפול בשגיאות ושילוח תשובה למשתמש
+        console.log(err);
+        res.status(400).json({ type: "invalid operation", message: "sorry cannot delete alert" });
     }
-    catch (err) {
-        console.log(err)
-        res.status(400).json({ type: "invalid operation", message: "sorry cannot get alert" })
-    }
+};
 
-}
+// עדכון התראה
 export const updateAlert = async (req, res) => {
+    const { id } = req.params;
 
-    let { id } = req.params;
-    if (!mongoose.isValidObjectId(id))
-        return res.status(400).json({ type: "not valid id", message: "id not in right format" })
+    // בדיקה אם ה-ID תקין
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(400).json({ type: "not valid id", message: "id not in right format" });
+    }
+
     try {
-        let alert = await alertModel.findById(id);
-        if (!alert)
-            return res.status(404).json({ type: "alert not found", message: "no alert with such id" })
-        
-        let updated = await alertModel.findByIdAndUpdate(id, req.body, { new: true })
+        // חיפוש ההתראה על פי ה-ID
+        const alert = await alertModel.findById(id);
+
+        // בדיקה אם ההתראה נמצאה
+        if (!alert) {
+            return res.status(404).json({ type: "alert not found", message: "no alert with such id" });
+        }
+
+        // עדכון ההתראה עם הנתונים שנשלחו
+        const updated = await alertModel.findByIdAndUpdate(id, req.body, { new: true });
+
+        // החזרת התגובה עם ההתראה המעודכנת
         return res.json(updated);
-
+    } catch (err) {
+        // טיפול בשגיאות ושילוח תשובה למשתמש
+        console.log(err);
+        res.status(400).json({ type: "invalid operation", message: "sorry cannot update alert" });
     }
-    catch (err) {
-        console.log(err)
-        res.status(400).json({ type: "invalid operation", message: "sorry cannot get alert" })
-    }
-
-}
-
-
-
+};

@@ -1,22 +1,28 @@
 import mongoose from "mongoose";
-import Jwt  from "jsonwebtoken";
 import Joi from "joi";
-const alertSchema = mongoose.Schema
-(
-    {
-    
-        alertName: String,
-        type : String
-    }
-)
 
-export const alertModel = mongoose.model("alerts", alertSchema)
-export const alertValidator = (_alert) =>
- {
-    const alertValidationSchema = Joi.object().keys
-    ({
-        alertName: Joi.string(),
-        type : Joi.string()
-    })
+// הגדרת הסכמה עבור התראות
+const alertSchema = new mongoose.Schema({
+    AlertType: { type: String, required: true },
+    StockName: { type: String, required: true },
+    MinRange: { type: Number, required: true },
+    MaxRange: { type: Number, required: true },
+    UserEmail: { type: String, ref: 'User', required: true }
+}, {
+    timestamps: true // מאפשר יצירת תאריכים אוטומטיים עבור יצירה ועדכון
+});
+
+export const alertModel = mongoose.model("Alert", alertSchema);
+
+// הגדרת הוולידציה עבור התראות
+export const alertValidator = (_alert) => {
+    const alertValidationSchema = Joi.object({
+        AlertType: Joi.string().required(),
+        StockName: Joi.string().required(),
+        MinRange: Joi.number().required(),
+        MaxRange: Joi.number().required(),
+        UserEmail: Joi.string().email().required() // ודא שהמייל הוא בפורמט תקין
+    });
     return alertValidationSchema.validate(_alert);
 }
+

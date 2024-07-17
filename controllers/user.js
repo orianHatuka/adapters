@@ -1,52 +1,69 @@
 import { generateToken, userModel } from "../models/user.js";
 import bcrypt from "bcryptjs";
+
+// הוספת משתמש חדש
 export const addUser = async (req, res) => {
-    let { userName, email } = req.body;
+    const { email, userName } = req.body;
 
-    if (!userName || !email)
-        return res.status(404).json({ type: "missing parameters", message: "Please enter email, user name" })
+    // בדיקה אם כל הפרמטרים קיימים
+    if (!userName || !email) {
+        return res.status(400).json({ type: "missing parameters", message: "Please enter email and user name" });
+    }
+
     try {
-        const sameUser = await userModel.findOne({ email: email });
-        if (sameUser)
-            return res.status(409).json({ type: "same user", message: "Used already exists in the system" })
-        // let hashedPassword = await bcrypt.hash(password, 15);
-        let newUser = new userModel({ email, userName, role: "user" });
+        // בדיקה אם המשתמש כבר קיים
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ type: "user exists", message: "User already exists in the system" });
+        }
+
+        // יצירת משתמש חדש
+        const newUser = new userModel({ email, userName });
         await newUser.save();
-        let token = generateToken(newUser._id, newUser.role, newUser.userName)
-        res.json({ _id: newUser.id, userName: newUser.userName, token, email: newUser.email, role: newUser.role })
-    }
-    catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Cannot add this user" })
-    }
-}
 
+        // יצירת טוקן JWT
+        const token = generateToken(newUser.userName, newUser.email);
 
-export const login = async (req, res) => {
-    let { email } = req.body;
-
-    if (!email)
-        return res.status(404).json({ type: "missing parameters", message: "Please enter email" })
-    try {
-        const user = await userModel.findOne({ email: email });
-        if (!user)
-            return res.status(404).json({ type: "User not found", message: "One or more details are invalid" })
-        let token = generateToken(user._id, user.role, user.userName);
-        return res.json({ _id: user.id, userName: user.userName, role: user.role, token, email: user.email })
-    }
-    catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Unable to enter user" })
-    }
-}
-
-export const getAllUsers = async (req, res) => {
-
-    try {
-        if (req.user.role != "ADMIN")
-            req.status(403).json({ type: "you are not alowd", massage: "you are not alowd to add a user" })
-        let allUsers = await userModel.find({}, "-password");
-        res.json(allUsers);
-
+        // החזרת התגובה עם פרטי המשתמש והטוקן
+        res.status(201).json({ email: newUser.email, userName: newUser.userName, token });
     } catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Unable to enter user" })
+        res.status(400).json({ type: "invalid operation", message: "Cannot add this user" });
     }
-}
+};
+
+// התחברות למערכת
+export const login = async (req, res) => {
+    const { email } = req.body;
+
+    // בדיקה אם המייל נשלח
+    if (!email) {
+        return res.status(400).json({ type: "missing parameters", message: "Please enter email" });
+    }
+
+    try {
+        // חיפוש המשתמש לפי המייל
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ type: "user not found", message: "User not found" });
+        }
+
+        // יצירת טוקן JWT
+        const token = generateToken(user.userName, user.email);
+
+        // החזרת התגובה עם פרטי המשתמש והטוקן
+        res.json({ email: user.email, userName: user.userName, token });
+    } catch (err) {
+        res.status(400).json({ type: "invalid operation", message: "Unable to login user" });
+    }
+};
+
+// קבלת כל המשתמשים
+export const getAllUsers = async (req, res) => {
+    try {
+        // קבלת כל המשתמשים פרט לשדה הסיסמה
+        const allUsers = await userModel.find({}, "-password");
+        res.json(allUsers);
+    } catch (err) {
+        res.status(400).json({ type: "invalid operation", message: "Unable to retrieve users" });
+    }
+};

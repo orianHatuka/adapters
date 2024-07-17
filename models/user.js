@@ -1,30 +1,28 @@
 import mongoose from "mongoose";
-import Jwt  from "jsonwebtoken";
+import Jwt from "jsonwebtoken";
 import Joi from "joi";
-const userSchema = mongoose.Schema
-(
-    {
-    
-        userName: String,
-        email : {type : String, unique : true},
-        role : {type : String, default : "user"},
-    }
-)
 
-export const userModel = mongoose.model("users", userSchema)
-export const userValidator = (_user) =>
- {
-    const userValidationSchema = Joi.object().keys
-    ({
-        userName: Joi.string(),
-        password: Joi.string(),
-        email : Joi.string(),
-        role : Joi.string(),
-    })
+// הגדרת הסכמה עבור משתמשים
+const userSchema = new mongoose.Schema({
+    userName: { type: String, required: true },
+    email: { type: String, unique: true, required: true }
+}, {
+    timestamps: true // מאפשר יצירת תאריכים אוטומטיים עבור יצירה ועדכון
+});
+
+export const userModel = mongoose.model("User", userSchema);
+
+// הגדרת הוולידציה עבור משתמשים
+export const userValidator = (_user) => {
+    const userValidationSchema = Joi.object({
+        userName: Joi.string().required(),
+        email: Joi.string().email().required() // ודא שהמייל הוא בפורמט תקין
+    });
     return userValidationSchema.validate(_user);
 }
-export const generateToken = (_id, role, userName) => 
-{
-    let token = Jwt.sign({_id, userName, role}, process.env.SECRET_JWT, {expiresIn : "1h"});
+
+// יצירת טוקן JWT
+export const generateToken = (userName, email) => {
+    let token = Jwt.sign({ userName, email }, process.env.SECRET_JWT, { expiresIn: "1h" });
     return token;
 }

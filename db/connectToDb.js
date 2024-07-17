@@ -4,8 +4,9 @@ import { config as loadEnv } from 'dotenv';
 // טעינת משתני סביבה מקובץ .env
 loadEnv();
 
-const connectionString = "Server=MYCOMP;Database=praktikum;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
 
+const connectionString = "Server=DESKTOP-QHG8LKI\SQLEXPRESS01;Database=praktikum;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
+//const connectionString = "Server=DESKTOP-QHG8LKI\SQLEXPRESS01;Database=praktikum;Trusted_Connection=Yes;Driver={ODBC Driver 17 for SQL Server}";
 export async function connectToDB() {
     return new Promise((resolve, reject) => {
         console.log('Attempting to connect to the database...');
