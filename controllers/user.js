@@ -1,69 +1,86 @@
-import { generateToken, userModel } from "../models/user.js";
-import bcrypt from "bcryptjs";
+import { generateToken, createUser, findUserByEmail, getAllUsers, validateUser } from "../models/user.js";
+import { connectToDB, closeConnection } from '../db/connection.js';
 
-// הוספת משתמש חדש
+// Adding a new user
 export const addUser = async (req, res) => {
     const { email, userName } = req.body;
-
-    // בדיקה אם כל הפרמטרים קיימים
+    
+    // Check if all parameters exist
     if (!userName || !email) {
-        return res.status(400).json({ type: "missing parameters", message: "Please enter email and user name" });
+      return res.status(400).json({ type: "missing parameters", message: "Please enter email and user name" });
     }
 
+    const { error } = validateUser({ email, userName });
+    if (error) return res.status(400).json({ type: "validation error", message: error.details[0].message });
+
+    let connection;
     try {
-        // בדיקה אם המשתמש כבר קיים
-        const existingUser = await userModel.findOne({ email });
-        if (existingUser) {
-            return res.status(409).json({ type: "user exists", message: "User already exists in the system" });
-        }
+      connection = await connectToDB();
 
-        // יצירת משתמש חדש
-        const newUser = new userModel({ email, userName });
-        await newUser.save();
+      // Check if the user already exists
+      const existingUser = await findUserByEmail(connection, email);
+      if (existingUser) {
+        return res.status(409).json({ type: "user exists", message: "User already exists in the system" });
+      }
 
-        // יצירת טוקן JWT
-        const token = generateToken(newUser.userName, newUser.email);
+      // Create a new user
+      const newUser = await createUser(connection, { email, userName });
 
-        // החזרת התגובה עם פרטי המשתמש והטוקן
-        res.status(201).json({ email: newUser.email, userName: newUser.userName, token });
+      // Generate JWT token
+      const token = generateToken(newUser.userName, newUser.email);
+
+      // Return the response with the user and token details
+      res.status(201).json({ email: newUser.email, userName: newUser.userName, token });
     } catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Cannot add this user" });
+      res.status(400).json({ type: "invalid operation", message: "Cannot add this user" });
+    } finally {
+      if (connection) await closeConnection(connection);
     }
 };
 
-// התחברות למערכת
+// Login to the system
 export const login = async (req, res) => {
     const { email } = req.body;
-
-    // בדיקה אם המייל נשלח
+    
+    // Check if the email was sent
     if (!email) {
-        return res.status(400).json({ type: "missing parameters", message: "Please enter email" });
+      return res.status(400).json({ type: "missing parameters", message: "Please enter email" });
     }
 
+    let connection;
     try {
-        // חיפוש המשתמש לפי המייל
-        const user = await userModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({ type: "user not found", message: "User not found" });
-        }
+      connection = await connectToDB();
 
-        // יצירת טוקן JWT
-        const token = generateToken(user.userName, user.email);
+      // Search the user by email
+      const user = await findUserByEmail(connection, email);
+      if (!user) {
+        return res.status(404).json({ type: "user not found", message: "User not found" });
+      }
 
-        // החזרת התגובה עם פרטי המשתמש והטוקן
-        res.json({ email: user.email, userName: user.userName, token });
+      // Generate JWT token
+      const token = generateToken(user.userName, user.email);
+
+      // Return the response with the user and token details
+      res.json({ email: user.email, userName: user.userName, token });
     } catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Unable to login user" });
+      res.status(400).json({ type: "invalid operation", message: "Unable to login user" });
+    } finally {
+      if (connection) await closeConnection(connection);
     }
 };
 
-// קבלת כל המשתמשים
-export const getAllUsers = async (req, res) => {
+// Get all users
+export const getAllUsersController = async (req, res) => {
+    let connection;
     try {
-        // קבלת כל המשתמשים פרט לשדה הסיסמה
-        const allUsers = await userModel.find({}, "-password");
-        res.json(allUsers);
+      connection = await connectToDB();
+
+      // Get all users
+      const allUsers = await getAllUsers(connection);
+      res.json(allUsers);
     } catch (err) {
-        res.status(400).json({ type: "invalid operation", message: "Unable to retrieve users" });
+      res.status(400).json({ type: "invalid operation", message: "Unable to retrieve users" });
+    } finally {
+      if (connection) await closeConnection(connection);
     }
 };
