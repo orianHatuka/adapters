@@ -1,5 +1,5 @@
-import { connectToDB, closeConnection } from '../db/connection';
-import { createNotification, validateNotification } from '../models/notification';
+import { connectToDB, closeConnection } from '../db/connectToDb.js';
+import { createNotification, validateNotification } from '../models/notification.js';
 
 export async function createNotificationController(req, res) {
   const { error } = validateNotification(req.body);
@@ -16,3 +16,19 @@ export async function createNotificationController(req, res) {
     if (connection) await closeConnection(connection);
   }
 }
+// notification.js בתיקיית controllers
+export const addNotification = (req, res) => {
+  // הקוד של הפונקציה
+};
+
+export const deleteNotification = (req, res) => {
+  // הקוד של הפונקציה
+};
+
+export const updateNotification = (req, res) => {
+  // הקוד של הפונקציה
+};
+
+export const getAllNotifications = (req, res) => {
+  // הקוד של הפונקציה
+};

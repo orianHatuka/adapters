@@ -1,6 +1,6 @@
 import express from "express";
 import userRouter from "./routes/user.js";
-import alertRouter from "./routes/alert.js";
+import notificationRouter from "./routes/notification.js";
 import { connectToDB } from "./db/connectToDb.js";
 import { config } from "dotenv";
 import cors from "cors";
@@ -17,7 +17,7 @@ app.use(express.json());
 connectToDB().then((conn) => {
     // התחברות מוצלחת, נמשיך להגדיר את השרת ולהאזין לבקשות
     app.use("/api/user", userRouter);
-    app.use("/api/alert", alertRouter);
+    app.use("/api/notification", notificationRouter);
     app.use(errorHandling);
     app.use(express.static("image"));
 

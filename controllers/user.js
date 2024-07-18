@@ -1,5 +1,5 @@
 import { generateToken, createUser, findUserByEmail, getAllUsers, validateUser } from "../models/user.js";
-import { connectToDB, closeConnection } from '../db/connection.js';
+import { connectToDB, closeConnection } from '../db/connectToDb.js';
 
 // Adding a new user
 export const addUser = async (req, res) => {
