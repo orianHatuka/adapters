@@ -5,7 +5,7 @@ import { config as loadEnv } from 'dotenv';
 loadEnv();
 
 
-const connectionString = "Server=localhost\SQLEXPRESS01;Database=praktikum;Trusted_Connection=Yes;Driver={ODBC Driver 17 for SQL Server}";
+const connectionString = "Server=localhost\SQLEXPRESS01;Database=stock;Trusted_Connection=Yes;Driver={ODBC Driver 17 for SQL Server}";
 //const connectionString = "Server=DESKTOP-QHG8LKI\SQLEXPRESS01;Database=praktikum;Trusted_Connection=Yes;Driver={ODBC Driver 17 for SQL Server}";
 export async function connectToDB() {
     return new Promise((resolve, reject) => {

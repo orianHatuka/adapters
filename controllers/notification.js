@@ -1,6 +1,7 @@
 import { connectToDB, closeConnection } from '../db/connectToDb.js';
 import { createNotification, validateNotification } from '../models/notification.js';
 
+
 export async function createNotificationController(req, res) {
   const { error } = validateNotification(req.body);
   if (error) return res.status(400).send(error.details[0].message);
@@ -16,19 +17,58 @@ export async function createNotificationController(req, res) {
     if (connection) await closeConnection(connection);
   }
 }
-// notification.js בתיקיית controllers
-export const addNotification = (req, res) => {
-  // הקוד של הפונקציה
-};
 
-export const deleteNotification = (req, res) => {
-  // הקוד של הפונקציה
-};
+// export const addNotification = (req, res) => {
 
-export const updateNotification = (req, res) => {
-  // הקוד של הפונקציה
-};
+// };
 
-export const getAllNotifications = (req, res) => {
-  // הקוד של הפונקציה
-};
+export function deleteNotification(conn, id) {
+  const query = 'DELETE FROM notifications WHERE id = @id';
+  return new Promise((resolve, reject) => {
+    conn.query(query, { id }, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+}
+
+
+export function updateNotification(conn, id, notification) {
+  const query = `
+    UPDATE notifications
+    SET NotificationType = @NotificationType, 
+        StockName = @StockName, 
+        MinRange = @MinRange, 
+        MaxRange = @MaxRange, 
+        UserEmail = @UserEmail
+    OUTPUT INSERTED.*
+    WHERE id = @id
+  `;
+  
+  return new Promise((resolve, reject) => {
+    conn.query(query, { ...notification, id }, (err, result) => {
+      if (err) reject(err);
+      else resolve(result[0]);
+    });
+  });
+}
+
+export function getAllNotifications(conn) {
+  const query = 'SELECT * FROM notifications';
+  return new Promise((resolve, reject) => {
+    conn.query(query, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+}
+
+export function findNotificationById(conn, id) {
+  const query = 'SELECT * FROM notifications WHERE id = @id';
+  return new Promise((resolve, reject) => {
+    conn.query(query, { id }, (err, result) => {
+      if (err) reject(err);
+      else resolve(result[0]);
+    });
+  });
+}
