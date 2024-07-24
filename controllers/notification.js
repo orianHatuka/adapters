@@ -1,6 +1,19 @@
 import { connectToDB, closeConnection } from '../db/connectToDb.js';
-import { createNotification, validateNotification } from '../models/notification.js';
+import {  validateNotification } from '../models/notification.js';
 
+export async function createNotification(conn, alert) {
+  const query = `
+    INSERT INTO notification (NotificationType, StockName, MinRange, MaxRange, UserEmail)
+    VALUES (@NotificationType, @StockName, @MinRange, @MaxRange, @UserEmail)
+  `;
+  
+  return new Promise((resolve, reject) => {
+    conn.query(query, notification, (err, result) => {
+      if (err) reject(err);
+      else resolve(result);
+    });
+  });
+}
 
 export async function createNotificationController(req, res) {
   const { error } = validateNotification(req.body);

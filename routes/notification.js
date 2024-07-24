@@ -1,21 +1,21 @@
 import express from "express";
-import { deleteNotification, updateNotification, getAllNotifications ,findNotificationById} from "../controllers/notification.js";
-import { auth } from "../middleware/auth.js";
+import { deleteNotification, updateNotification, getAllNotifications ,findNotificationById ,createNotificationController} from "../controllers/notification.js";
+// import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // Add Notification - requires permissions (authentication)
-// router.post("/", auth, addNotification);
+router.post("/", createNotificationController);
 
 // Delete Notification by ID - requires permissions (authentication)
-router.delete("/:id", auth, deleteNotification);
+router.delete("/:id", deleteNotification);
 
 // Update notification by ID - requires permissions (authentication)
-router.put("/:id", auth, updateNotification);
+router.put("/:id", updateNotification);
 
 // Get all Notifications - requires permissions (authentication)
-router.get("/", auth, getAllNotifications);
+router.get("/", getAllNotifications);
 
-router.get("/",auth,findNotificationById);
+router.get("/:id",findNotificationById);
 
 export default router;
