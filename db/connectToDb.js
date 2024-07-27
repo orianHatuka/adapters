@@ -3,10 +3,8 @@ import { config as loadEnv } from 'dotenv';
 
 // טעינת משתני סביבה מקובץ .env
 loadEnv();
-
-
-const connectionString = "Server=localhost\SQLEXPRESS01;DRIVER= ODBS Driver 18 for SQL Server;Database=stock;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
-//const connectionString = "Server=DESKTOP-QHG8LKI\SQLEXPRESS01;Database=praktikum;Trusted_Connection=Yes;Driver={ODBC Driver 17 for SQL Server}";
+//DESKTOP-A7914CV\SQLEXPRESS
+const connectionString = "Server=DESKTOP-A7914CV\SQLEXPRESS;Database=Practicum;Trusted_Connection=Yes;Provider=MSOLEDBSQL";
 export async function connectToDB() {
     return new Promise((resolve, reject) => {
         console.log('Attempting to connect to the database...');

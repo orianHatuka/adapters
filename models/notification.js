@@ -3,7 +3,7 @@ import Joi from "joi";
 
 
 
-export const validateNotification = (alert) => {
+export const validateNotification = (notification) => {
   const schema = Joi.object({
     AlertType: Joi.string().required(),
     StockName: Joi.string().required(),

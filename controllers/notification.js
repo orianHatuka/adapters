@@ -1,7 +1,7 @@
 import { connectToDB, closeConnection } from '../db/connectToDb.js';
 import {  validateNotification } from '../models/notification.js';
 
-export async function createNotification(conn, alert) {
+export async function createNotification(conn, notification) {
   const query = `
     INSERT INTO notification (NotificationType, StockName, MinRange, MaxRange, UserEmail)
     VALUES (@NotificationType, @StockName, @MinRange, @MaxRange, @UserEmail)
