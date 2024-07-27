@@ -1,10 +1,10 @@
 import sql from 'msnodesqlv8';
 import { config as loadEnv } from 'dotenv';
 
-// טעינת משתני סביבה מקובץ .env
 loadEnv();
-//DESKTOP-A7914CV\SQLEXPRESS
-const connectionString = "Server=DESKTOP-A7914CV\SQLEXPRESS;Database=Practicum;Trusted_Connection=Yes;Provider=MSOLEDBSQL";
+
+const connectionString = "Server=MYCOMP;Database=praktikum;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
+
 export async function connectToDB() {
     return new Promise((resolve, reject) => {
         console.log('Attempting to connect to the database...');
