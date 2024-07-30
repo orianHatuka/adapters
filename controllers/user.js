@@ -7,7 +7,6 @@ export const addUser = async (req, res) => {
     const { Email, Name } = req.body;
     console.log("Received body:", req.body);
 
-    // בדיקה אם כל הפרמטרים קיימים
     if (!Name || !Email) {
         return res.status(400).json({ type: "missing parameters", message: "Please enter Email and user name" });
     }
@@ -24,7 +23,6 @@ export const addUser = async (req, res) => {
         connection = await connectToDB();
         console.log("Connected to the database successfully");
 
-        // בדיקה אם המשתמש קיים כבר
         const existingUser = await findUserByEmail(connection, Email);
         console.log("Existing user:", existingUser);
 
@@ -32,13 +30,10 @@ export const addUser = async (req, res) => {
             return res.status(409).json({ type: "user exists", message: "User already exists in the system" });
         }
 
-        // יוצר משתמש חדש
         const newUser = await createUser(connection, { Email, Name });
         console.log("New user:", newUser);
 
-        // Generate JWT token
         const token = generateToken(newUser.Name, newUser.Email);
-        // מחזיר את פרטי המשתמש
         res.status(201).json({ Email: newUser.Email, Name: newUser.Name, token });
     } catch (err) {
         console.log("Error adding user:", err);
@@ -48,17 +43,14 @@ export const addUser = async (req, res) => {
     }
 };
 
-// שאילתות של יצירה ושליפה של משתמש
 export async function createUser(conn, user) {
-    const query = `
-        INSERT INTO Users (Name, Email)
-        OUTPUT INSERTED.Name, INSERTED.Email
-        VALUES (?, ?)
-    `;
     return new Promise((resolve, reject) => {
+        const query = `
+            EXEC CreateUser @Name = ?, @Email = ?
+        `;
         conn.query(query, [user.Name, user.Email], (err, result) => {
             if (err) {
-                console.log("Error in createUser query:", err);
+                console.log("Error in createUser procedure:", err);
                 reject(err);
             } else {
                 resolve(result[0]);
@@ -67,7 +59,6 @@ export async function createUser(conn, user) {
     });
 }
 
-// חיבור למערכת
 export const login = async (req, res) => {
     const { Email } = req.body;
 
@@ -93,8 +84,10 @@ export const login = async (req, res) => {
 };
 
 export async function findUserByEmail(conn, Email) {
-    const query = 'SELECT Name, Email FROM Users WHERE Email = ?';
     return new Promise((resolve, reject) => {
+        const query = `
+            EXEC FindUserByEmail @Email = ?
+        `;
         conn.query(query, [Email], (err, result) => {
             if (err) {
                 reject(err);
@@ -105,7 +98,6 @@ export async function findUserByEmail(conn, Email) {
     });
 }
 
-// שליפנ של כל המשתמשים
 export const getAllUsersController = async (req, res) => {
     let connection;
     try {
@@ -120,8 +112,10 @@ export const getAllUsersController = async (req, res) => {
 };
 
 export async function getAllUsers(conn) {
-    const query = 'SELECT * FROM Users';
     return new Promise((resolve, reject) => {
+        const query = `
+            EXEC GetAllUsers
+        `;
         conn.query(query, (err, result) => {
             if (err) {
                 reject(err);

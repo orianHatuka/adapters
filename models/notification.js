@@ -5,11 +5,11 @@ import Joi from "joi";
 
 export const validateNotification = (notification) => {
   const schema = Joi.object({
-    AlertType: Joi.string().required(),
+    notificationType: Joi.string().required(),
     StockName: Joi.string().required(),
     MinRange: Joi.number().required(),
     MaxRange: Joi.number().required(),
-    UserEmail: Joi.string().email().required()
+    UserEmail: Joi.string().email()
   });
   return schema.validate(notification);
 }

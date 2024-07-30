@@ -1,35 +1,30 @@
 import sql from 'msnodesqlv8';
-import { config as loadEnv } from 'dotenv';
 
-loadEnv();
+// הגדרת מחרוזת החיבור
+const connectionString = "server=MYCOMP;Database=praktikum;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
 
-const connectionString = "Server=MYCOMP;Database=praktikum;Trusted_Connection=Yes;Driver={SQL Server Native Client 11.0}";
-
-export async function connectToDB() {
+// פונקציה לפתיחת חיבור למסד הנתונים
+export function connectToDB() {
     return new Promise((resolve, reject) => {
-        console.log('Attempting to connect to the database...');
         sql.open(connectionString, (err, conn) => {
             if (err) {
-                console.error('Error connecting to the database:', err.message);
+                console.log(err)
                 reject(err);
-            } else {
-                console.log('Connected to the database successfully');
-                resolve(conn);
             }
+            else resolve(conn);
         });
     });
 }
 
-export async function closeConnection(conn) {
+// פונקציה לסגירת החיבור למסד הנתונים
+export function closeConnection(conn) {
     return new Promise((resolve, reject) => {
-        conn.close((closeErr) => {
-            if (closeErr) {
-                console.error('Error disconnecting from the database:', closeErr.message);
-                reject(closeErr);
-            } else {
-                console.log('Disconnected from the database');
-                resolve();
+        conn.close((err) => {
+            if (err) {
+                reject(err);
+                console.log(err)
             }
+            else resolve();
         });
     });
 }
